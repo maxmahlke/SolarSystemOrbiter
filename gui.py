@@ -10,7 +10,7 @@ import parameters
 import imageio
 import os
 import all_in_one
-
+import numpy as np
 
 
 class app:
@@ -92,7 +92,7 @@ class app:
         # Have to select origin and destination of Hohmann Transfer. If not,
         # this function just returns a message and does nothing
         try:
-            a, b = self.origin.get(self.origin.curselection()), self.destination.curselction()
+            a, b = self.origin.get(self.origin.curselection()), self.destination.curselection()
         except TclError:
             print('You have to select origin and destiantion for the Hohmann Transfer Orbit')
             return 0
@@ -102,9 +102,23 @@ class app:
                    'Earth': [self.earth.get(), 1., 1., 0.], 'Mars': [self.mars.get(), 1.524,  1.88, 0.],
                    'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0.], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0.],
                    'Uranus': [self.uranus.get(), 19.20, 84, 0.], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0.]}
-        t, off = parameters.suggest(planets[self.origin.get(self.origin.curselection())][1],
-                                    planets[self.destination.get(self.destination.curselection())][1],
-                                    planets[self.destination.get(self.destination.curselection())][2])
+        # Calculates travel time of rocket and required angular offset of planets
+        d_o = planets[self.origin.get(self.origin.curselection())][1]
+        d_d = planets[self.destination.get(self.destination.curselection())][1]
+        T_d = planets[self.destination.get(self.destination.curselection())][2]
+        # Travel time
+        # Using Keplers third law units of 1 AU and 1 Earth year: T^2 = a^3
+        a = (d_o + d_d) / 2
+        T_squared = a**3
+        T = np.sqrt(T_squared)
+        # Only half-way required
+        T /= 2
+        # Calculate required angular offset
+        off = T/T_d * 360
+        # Return T in Earth Weeks
+        t = T * 52
+        off = 180-off
+
         self.duration.set(round(t, 2))
         self.offs.set(round(off, 2))
 
@@ -112,7 +126,7 @@ class app:
         # Have to select origin and destination of Hohmann Transfer. If not,
         # this function just returns a message and does nothing
         try:
-            a, b = self.origin.get(self.origin.curselection()), self.destination.curselction()
+            a, b = self.origin.get(self.origin.curselection()), self.destination.curselection()
         except TclError:
             print('You have to select origin and destiantion for the Hohmann Transfer Orbit')
             return 0
@@ -156,7 +170,7 @@ class app:
         # Have to select origin and destination of Hohmann Transfer. If not,
         # this function just returns a message and does nothing
         try:
-            a, b = self.origin.get(self.origin.curselection()), self.destination.curselction()
+            a, b = self.origin.get(self.origin.curselection()), self.destination.curselection()
         except TclError:
             print('You have to select origin and destiantion for the Hohmann Transfer Orbit')
             return 0
