@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
+
 def leap_frog(nsteps, distance, angle):
     def step_x():
         # Calculate step in x, return incremented x
@@ -19,13 +20,12 @@ def leap_frog(nsteps, distance, angle):
         v_x = v_x_0 - delta * G*M*x_1/r(x_1, y_1)**3
         return v_x
 
-
     def step_v_y():
         # Calculate step in v_y, return incremented v_y
         v_y = v_y_0 - delta * G*M*y_1/r(x_1, y_1)**3
         return v_y
 
-    def r(x,y):
+    def r(x, y):
         # Calculate Earth-Sun distance
         r_0 = np.sqrt(x**2 + y**2)
         return r_0
@@ -45,18 +45,10 @@ def leap_frog(nsteps, distance, angle):
     v_x_0 = v*np.cos(a)
     v_y_0 = v*np.sin(a)
 
-
-    #x_0 = x_0 * AU
-    #v_x_0 = 0
-    #y_0 = 0
-    #v_y_0 = np.sqrt(G*M/x_0)	# 28 km / s
-
-
     delta = 2 * 3.141597 * 1*AU / np.sqrt(G*M/AU) / 365 / 15      # Step size is 1 Earth day
     # Taylor approximation of velocities at n=1/2
     v_x_0 = v_x_0 - G*M*x_0/r(x_0, y_0)**3 * delta/2
     v_y_0 = v_y_0 - G*M*y_0/r(x_0, y_0)**3 * delta/2
-
 
     x = []
     y = []

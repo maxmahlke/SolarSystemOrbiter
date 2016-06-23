@@ -1,7 +1,8 @@
 from __future__ import division
 import numpy as np
 import math
-# import matplotlib.pyplot as plt
+import minibar
+
 
 def hohmann(nsteps, d_o, d_d, second):
     # d_o is distance of origin to sun in AU
@@ -20,7 +21,6 @@ def hohmann(nsteps, d_o, d_d, second):
         # Calculate step in v_x, return incremented v_x
         v_x = v_x_0 - delta * G*M*x_1/r(x_1, y_1)**3
         return v_x
-
 
     def step_v_y():
         # Calculate step in v_y, return incremented v_y
@@ -47,17 +47,6 @@ def hohmann(nsteps, d_o, d_d, second):
     v_x_0 = v*np.cos(a)
     v_y_0 = v*np.sin(a)
 
-
-
-    #v_x_0 = 0
-    #y_0 = 0
-    # Initial velocity is orbital velocity of origin + impulse to change orbit. Impulse is negative or positive,
-    # depending on relation between d_o and d_d
-    #v_y_0 =     # 28 km / s
-
-
-
-#    delta = 2 * 3.141597 * (x_0 + r_1 / 2) / v_y_0 / nsteps   # Now have an ellipse with perimeter x_0 + r_1 /2
     delta = 2 * 3.141597 * 1*AU / np.sqrt(G*M/AU) / 365 / 15     # Step size is 1 Earth day
 
     # Taylor approximation of velocities at n=1/2
@@ -70,8 +59,9 @@ def hohmann(nsteps, d_o, d_d, second):
     x = []
     y = []
     travelled_distance = 0
-    # Integration
-    for step in range(0, nsteps):
+    # Progress Bar
+    progress = "Transversing through Space.. {bar}  {eta}"
+    for step in minibar.bar(range(0, nsteps), template=progress):
         x.append(x_0 / AU)
         y.append(y_0 / AU)
         x_1 = step_x()
@@ -87,21 +77,14 @@ def hohmann(nsteps, d_o, d_d, second):
         #     plt.plot(x, y)
         #     plt.savefig('/Users/Max/Desktop/CA/' + str(step) + '.png')
         # # Check if we have reached Target yet
-        if y_0 >= r_1*0.99:
-            if not arrived:
-                print('Reached destination orbit')
-                print('Transfer time: %f Earth years.' % (nsteps / 7 / 15 / 52))
-                print('Transfer distance: %f AU' % (travelled_distance / AU))
-                arrived = True
         if y_0 >= r_1*0.9999:
             if second:    
                 if not second_impulse:
-                    print('Impulse at Apohelion..')
                     v_x_0 -= np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
-                    # v_y_0 += np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
                     v_x_1 -= np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
-                    # v_y_1 += np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
                     second_impulse = True
-                    print('Orbit transfer completed.')
+    print('\nOrbit transfer completed.')
+    print('Transfer time: %f Earth years.' % (nsteps / 7 / 15 / 52))
+    print('Transfer distance: %f AU' % (travelled_distance / AU))
 
     return x, y
