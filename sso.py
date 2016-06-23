@@ -68,7 +68,7 @@ class app:
         self.second = tk.BooleanVar()
         # File path for output images
         self.save_p = tk.StringVar()
-        self.save_p.set(os.getcwd())
+        self.save_p.set(os.getcwd() + '/MyBigTrip/')
 
         tk.Entry(self.transfer_frame, textvariable=self.offs).grid(row=6, column=0, sticky='EW')
         tk.Label(self.transfer_frame, text='Planet Offset in Degree').grid(row=6, column=2, sticky='E')
@@ -175,14 +175,14 @@ class app:
             print('You have to select origin and destiantion for the Hohmann Transfer Orbit')
             return 0
 
-        print('Here we go! ..')
+        print('3.. 2.. 1.. Liftoff! ..')
         planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0.], 'Venus': [self.venus.get(), 0.723, 0.615, 0.],
                    'Earth': [self.earth.get(), 1., 1., 0.], 'Mars': [self.mars.get(), 1.524,  1.88, 0.],
                    'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0.], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0.],
                    'Uranus': [self.uranus.get(), 19.20, 84, 0.], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0.]}
 
         # Make save directory if necessary
-        save_path = self.save_p.get() + 'MyBigTrip/'
+        save_path = self.save_p.get()
         os.makedirs(save_path, exist_ok=True)
 
         # Planet and Transfer arrays
@@ -317,13 +317,14 @@ class app:
                 plt.cla()
                 plt.clf()
 
-        moviebar = "Shooting movie.. {bar}  {eta}"
+        moviebar = "Shooting movie.. {bar}"
         images = []
-        image_files = [save_path + f for f in os.listdir(save_path) if os.path.isfile(os.path.join(save_path, f)) and f[-4:] == '.png'].sort()
+        image_files = [save_path + f for f in os.listdir(save_path) if os.path.isfile(os.path.join(save_path, f)) and f[-4:] == '.png']
+        image_files.sort()
         for filename in minibar.bar(image_files, template=moviebar):
             images.append(imageio.imread(filename))
             imageio.mimsave(save_path + 'HohmannTransfer.gif', images)  # Save object dictionary entry to text file
-        print('Done!')
+        print('\nDone!')
 
 root = tk.Tk()
 gui = app(root)

@@ -1,12 +1,12 @@
 # SolarSystemOrbiter
 Plot the orbits of the planets in our Solar System and calculate the [Hohmann Transfer Orbits](https://en.wikipedia.org/wiki/Hohmann_transfer_orbit) to transfer your rocket ship from one to the other and back. Plot your route and create a travel movie to show your family and friends!
 
-# How to install
+### How to install
 Download the .zip or clone the repository, and you're done! 
 The script is written in *Python 3.5* . It requires the *numpy*, *matplotlib*, *tkinter*, *imageio*, and the beautiful [*minibar*](https://github.com/canassa/minibar) package. All these packages can be acquired with the pip installer
 `pip install *package*`
 
-# How to use it
+### How to use it
 
 The script is run using
 `python sso.py`
@@ -20,9 +20,9 @@ The 'Plot' button triggers the integration of the orbits of the planets and the 
 
 Some status information is shown in the command line while you run the script!
 
-# What it does
+### What it does
 The planet and transfer orbits are calculated using the [leap-frog integration scheme](https://en.wikipedia.org/wiki/Leapfrog_integration). Several assumptions are made, mostly in-plane, circular orbits of the planets and the rocket ship around the Sun. Only the gravitational field of the Sun is regarded.
 
-# To-Do
+### To-Do
 * Order of images in GIF appears to be messed up
 * Include Planet IX 
