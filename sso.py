@@ -1,16 +1,17 @@
 #! /usr/bin/env python
 
 import matplotlib.pyplot as plt
-import leap_frog as lf
 import tkinter as tk
 from tkinter import ttk
 from _tkinter import TclError
-import hohmann as hm
+from calc import all_in_one
+from calc import hohmann as hm
+from calc import leap_frog as lf
 import imageio
 import os
-import all_in_one
 import numpy as np
 import minibar
+
 
 class app:
     def __init__(self, master):
