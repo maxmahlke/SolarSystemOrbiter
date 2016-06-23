@@ -182,7 +182,7 @@ class app:
                    'Uranus': [self.uranus.get(), 19.20, 84, 0.], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0.]}
 
         # Make save directory if necessary
-        save_path = self.save_p.get()
+        save_path = self.save_p.get() + 'MyBigTrip/'
         os.makedirs(save_path, exist_ok=True)
 
         # Planet and Transfer arrays
@@ -319,7 +319,7 @@ class app:
 
         moviebar = "Shooting movie.. {bar}  {eta}"
         images = []
-        image_files = [save_path + f for f in os.listdir(save_path) if os.path.isfile(os.path.join(save_path, f)) and f[-4:] == '.png']
+        image_files = [save_path + f for f in os.listdir(save_path) if os.path.isfile(os.path.join(save_path, f)) and f[-4:] == '.png'].sort()
         for filename in minibar.bar(image_files, template=moviebar):
             images.append(imageio.imread(filename))
             imageio.mimsave(save_path + 'HohmannTransfer.gif', images)  # Save object dictionary entry to text file
