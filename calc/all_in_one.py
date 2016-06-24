@@ -1,6 +1,4 @@
-from __future__ import division
 import numpy as np
-import math
 
 
 def hohmann(nsteps, d_o, d_d, second):
@@ -36,7 +34,7 @@ def hohmann(nsteps, d_o, d_d, second):
     M = 1.998e30					# mass of Sun
 
     angle = 0
-    a = angle * math.pi / 180
+    a = angle * np.pi / 180
     d_init = d_o * AU
     r_1 = d_d * AU
     v = np.sqrt(G*M/d_init) + np.sqrt(G*M/d_init) * (np.sqrt(2*r_1 / (r_1 + d_init)) - 1)
