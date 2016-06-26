@@ -8,7 +8,9 @@ Download the .zip or clone the repository, and you're done!
 The script is written in *Python 3.5* . It requires the *numpy*, *matplotlib*, *tkinter*, *imageio*, and the beautiful [*minibar*](https://github.com/canassa/minibar) package. All these packages can be acquired with the pip installer
 
 `pip install *package*`  
+
 or execute the install script  
+
 `python3 setup.py install`
 
 ### How to use it

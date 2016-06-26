@@ -163,6 +163,7 @@ class app:
         plt.ylim(-lim*1.1, lim*1.1)
         plt.xlabel('x / AU')
         plt.ylabel('y / AU')
+        plt.axis("equal")
         plt.grid()
         plt.show()
 
@@ -312,6 +313,7 @@ class app:
                 plt.ylim(-lim*1.1, lim*1.1)
                 plt.xlabel("x / AU")
                 plt.ylabel("y / AU")
+                plt.axis("equal")
                 plt.savefig(save_path + str(i) + '.png')
                 fig.clear()
                 plt.cla()
