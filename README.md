@@ -4,10 +4,12 @@ Plot the orbits of the planets in our Solar System and calculate the [Hohmann Tr
 ![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/htm/venus_mars.png?raw=true)
 
 ### How to install
-Download the .zip or clone the repository, and you're done! 
+Download the .zip or clone the repository, and you're done!
 The script is written in *Python 3.5* . It requires the *numpy*, *matplotlib*, *tkinter*, *imageio*, and the beautiful [*minibar*](https://github.com/canassa/minibar) package. All these packages can be acquired with the pip installer
 
-`pip install *package*`
+`pip install *package*`  
+Or  
+`python3 setup.py install`
 
 ### How to use it
 
@@ -20,7 +22,7 @@ This interface will then pop up:
 
 You choose the planets that shall be plotted and then select the origin and desitnation of your travel.
 
-Selecting the 'Acceleration at Apohelion' button triggers a second acceleration as soon as you have reachead your destination, meaning that the rocket ship stays in the new orbit. 
+Selecting the 'Acceleration at Apohelion' button triggers a second acceleration as soon as you have reachead your destination, meaning that the rocket ship stays in the new orbit.
 
 Clicking the 'Get Rocket Trajectory' button calculates the required time (number of integration steps) to reach your target, and the required planetary offset in degree so you don't miss Mars or the other planets once you reach the orbit. You can change the values and expirement what would happen, if..!
 
@@ -37,4 +39,4 @@ Here is the math behind the calculation of the HTM and an examplary calculation 
 
 ### To-Do
 * Order of images in GIF appears to be messed up
-* Include Planet IX 
+* Include Planet IX
