@@ -111,7 +111,7 @@ def leap_frog(nsteps, distance, angle):
 
     # Use distance and anlge to calculate inital positions x_0, y_0 and velocities
     d = distance * AU
-    a = angle * math.pi / 180
+    a = angle * np.pi / 180
     v = np.sqrt(G*M/d)
 
     x_0 = d*np.sin(a)
