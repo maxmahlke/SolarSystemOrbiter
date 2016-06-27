@@ -13,7 +13,7 @@ import numpy as np
 import minibar
 
 
-class app:
+class App:
     def __init__(self, master):
         self.master = master
         self.master.title = 'Hohmann-Transfer Calculator'
@@ -54,13 +54,14 @@ class app:
 
         self.origin = tk.Listbox(self.transfer_frame, exportselection=0)
         self.origin.grid(row=4, column=0, sticky='EW')
-        for item in ['Neptune', 'Uranus', 'Saturn', 'Jupiter', 'Mars', 'Earth', 'Venus', 'Mercury']:
-            self.origin.insert(0, item)
+        planets = ['Neptune', 'Uranus', 'Saturn', 'Jupiter', 'Mars', 'Earth', 'Venus', 'Mercury']
+        for planet in planets:
+            self.origin.insert(0, planet)
 
         self.destination = tk.Listbox(self.transfer_frame, exportselection=0)
         self.destination.grid(row=4, column=2, sticky='EW')
-        for item in ['Neptune', 'Uranus', 'Saturn', 'Jupiter', 'Mars', 'Earth', 'Venus', 'Mercury']:
-            self.destination.insert(0, item)
+        for planet in planets:
+            self.destination.insert(0, planet)
 
         # Planet offset in degree
         self.offs = tk.DoubleVar()
@@ -70,10 +71,14 @@ class app:
         self.save_p = tk.StringVar()
         self.save_p.set(os.getcwd() + '/MyBigTrip/')
 
-        tk.Entry(self.transfer_frame, textvariable=self.offs).grid(row=6, column=0, sticky='EW')
+        self.entry_offs = tk.Entry(self.transfer_frame, textvariable=self.offs)
+        self.entry_offs.grid(row=6, column=0, sticky='EW')
+        #self.entry_offs.state(['disabled'])
         tk.Label(self.transfer_frame, text='Planet Offset in Degree').grid(row=6, column=2, sticky='E')
         self.duration = tk.DoubleVar()
-        tk.Entry(self.transfer_frame, textvariable=self.duration).grid(row=7, column=0, sticky='EW')
+        self.entry_duration = tk.Entry(self.transfer_frame, textvariable=self.duration)
+        self.entry_duration.grid(row=7, column=0, sticky='EW')
+        #self.entry_duration.state(['disabled'])
         tk.Label(self.transfer_frame, text='Flight Duration in Earth Weeks').grid(row=7, column=2, sticky='E')
 
         tk.Checkbutton(self.transfer_frame, text='Acceleration at Apohelion', variable=self.second).grid(row=5, column=0, sticky='EW')
@@ -98,10 +103,12 @@ class app:
             return 0
 
         print('Calculating Rocket trajectory..')
+
         planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0.], 'Venus': [self.venus.get(), 0.723, 0.615, 0.],
                    'Earth': [self.earth.get(), 1., 1., 0.], 'Mars': [self.mars.get(), 1.524,  1.88, 0.],
                    'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0.], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0.],
                    'Uranus': [self.uranus.get(), 19.20, 84, 0.], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0.]}
+
         # Calculates travel time of rocket and required angular offset of planets
         d_o = planets[self.origin.get(self.origin.curselection())][1]
         d_d = planets[self.destination.get(self.destination.curselection())][1]
@@ -140,14 +147,22 @@ class app:
         nsteps = 7 * 15 * self.duration.get()
         planets[self.destination.get(self.destination.curselection())][3] = self.offs.get()
 
+        #fig = plt.figure()
+        #ax = fig.add_subplot(111)
+
         for planet, props in planets.items():
             if props[0]:
                 x, y = lf.leap_frog(int(nsteps), props[1], props[3])
-                plt.plot(x, y)
-                plt.plot(x[-1], y[-1], 'o', ms=8)
+                plt.plot(x, y, marker=None, alpha=0.5)
+                plt.plot(x[-1], y[-1], marker='o', ms=8)
             # Sun
-            plt.plot(0, 0, 'yo', ms=10)
-
+            sun_x = 0.
+            sun_y = 0.
+            shift = -4  # in points
+            plt.plot(sun_x, sun_y, 'yo', ms=10)
+            #plt.annotate("Sun", xy=(sun_x, sun_y), xycoords='data',
+            #            xytext=(shift, shift), textcoords='offset points', color='y',
+            #            fontsize=15, style='italic')
         # Plot Hohmann
         print('Fueling Rocket..')
         print('Launching Rocket..')
@@ -159,11 +174,11 @@ class app:
         for values in planets.values():
             if values[0] and values[1] > lim:
                 lim = values[1]
-        plt.xlim(-lim*1.1, lim*1.1)
-        plt.ylim(-lim*1.1, lim*1.1)
         plt.xlabel('x / AU')
         plt.ylabel('y / AU')
         plt.axis("equal")
+        plt.xlim(-lim*1.5, lim*1.5)
+        plt.ylim(-lim*1.5, lim*1.5)
         plt.grid()
         plt.show()
 
@@ -177,34 +192,19 @@ class app:
             return 0
 
         print('3.. 2.. 1.. Liftoff! ..')
-        planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0.], 'Venus': [self.venus.get(), 0.723, 0.615, 0.],
-                   'Earth': [self.earth.get(), 1., 1., 0.], 'Mars': [self.mars.get(), 1.524,  1.88, 0.],
-                   'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0.], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0.],
-                   'Uranus': [self.uranus.get(), 19.20, 84, 0.], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0.]}
+
+        # Planet: Plotting Boolean, distances to sun in AU, Offset Angle, Position array
+        planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0., []], 'Venus': [self.venus.get(), 0.723, 0.615, 0., []],
+                   'Earth': [self.earth.get(), 1., 1., 0., []], 'Mars': [self.mars.get(), 1.524,  1.88, 0., []],
+                   'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0., []], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0., []],
+                   'Uranus': [self.uranus.get(), 19.20, 84, 0., []], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0., []]}
 
         # Make save directory if necessary
         save_path = self.save_p.get()
         os.makedirs(save_path, exist_ok=True)
 
-        # Planet and Transfer arrays
-        hohmann_x = []
-        hohmann_y = []
-        merx = []
-        mery = []
-        venx = []
-        veny = []
-        earx = []
-        eary = []
-        marx = []
-        mary = []
-        jupx = []
-        jupy = []
-        satx = []
-        saty = []
-        urax = []
-        uray = []
-        nepx = []
-        nepy = []
+        # Transfer array
+        hohmann = []
 
         # counter for images
         i = 0
@@ -212,108 +212,45 @@ class app:
         # Set planet angle equal to calculated required angular offset
         planets[self.destination.get(self.destination.curselection())][3] = self.offs.get()
 
-        if planets['Mercury'][0]:
-            mercury = all_in_one.leap_frog(nsteps, planets['Mercury'][1], planets['Mercury'][3])
-        if planets['Venus'][0]:
-            venus = all_in_one.leap_frog(nsteps, planets['Venus'][1], planets['Venus'][3])
-        if planets['Earth'][0]:
-            earth = all_in_one.leap_frog(nsteps, planets['Earth'][1], planets['Earth'][3])
-        if planets['Mars'][0]:
-            mars = all_in_one.leap_frog(nsteps, planets['Mars'][1], planets['Mars'][3])
-        if planets['Jupiter'][0]:
-            jupiter = all_in_one.leap_frog(nsteps, planets['Jupiter'][1], planets['Jupiter'][3])
-        if planets['Saturn'][0]:
-            saturn = all_in_one.leap_frog(nsteps, planets['Saturn'][1], planets['Saturn'][3])
-        if planets['Uranus'][0]:
-            uranus = all_in_one.leap_frog(nsteps, planets['Uranus'][1], planets['Uranus'][3])
-        if planets['Neptune'][0]:
-            neptune = all_in_one.leap_frog(nsteps, planets['Neptune'][1], planets['Neptune'][3])
+        # If planet is plotted:
+        # Create generators to calculate positions of planets
+        for planet, properties in planets.items():
+            if properties[0]:
+                properties.append(all_in_one.leap_frog(nsteps, properties[1], properties[3]))
 
         for x, y in all_in_one.hohmann(nsteps, planets[self.origin.get(self.origin.curselection())][1],
                                        planets[self.destination.get(self.destination.curselection())][1], self.second.get()):
-            hohmann_x.append(x)
-            hohmann_y.append(y)
-
-            if planets['Mercury'][0]:
-                mx, my = next(mercury)
-                merx.append(mx)
-                mery.append(my)
-            if planets['Venus'][0]:
-                vx, vy = next(venus)
-                venx.append(vx)
-                veny.append(vy)
-            if planets['Earth'][0]:
-                ex, ey = next(earth)
-                earx.append(ex)
-                eary.append(ey)
-            if planets['Mars'][0]:
-                max, may = next(mars)
-                marx.append(max)
-                mary.append(may)
-            if planets['Jupiter'][0]:
-                jx, jy = next(jupiter)
-                jupx.append(jx)
-                jupy.append(jy)
-            if planets['Saturn'][0]:
-                sx, sy = next(saturn)
-                satx.append(sx)
-                saty.append(sy)
-            if planets['Uranus'][0]:
-                ux, uy = next(uranus)
-                urax.append(ux)
-                uray.append(uy)
-            if planets['Neptune'][0]:
-                nx, ny = next(neptune)
-                nepx.append(nx)
-                nepy.append(ny)
-
+            hohmann.append((x, y))
+            # If planet is plotted:
+            # Calculate next coordinates and append to position array
+            for planet, properties in planets.items():
+                if properties[0]:
+                    properties[4].append(next(properties[5]))
             i += 1
             nth = int(nsteps/50)
-
             if i % nth == 0 or i == nsteps-1:
                 fig = plt.Figure()
-
-                if planets['Mercury'][0]:
-                    plt.plot(merx, mery, 'b-')
-                    plt.plot(mx, my, 'o', ms=8)
-                if planets['Venus'][0]:
-                    plt.plot(venx, veny, 'b-')
-                    plt.plot(vx, vy, 'o', ms=8)
-                if planets['Earth'][0]:
-                    plt.plot(earx, eary, 'b-')
-                    plt.plot(ex, ey, 'o', ms=8)
-                if planets['Mars'][0]:
-                    plt.plot(marx, mary, 'b-')
-                    plt.plot(max, may, 'o', ms=8)
-                if planets['Jupiter'][0]:
-                    plt.plot(jupx, jupy, 'b-')
-                    plt.plot(jx, jy, 'o', ms=8)
-                if planets['Saturn'][0]:
-                    plt.plot(satx, saty, 'b-')
-                    plt.plot(sx, sy, 'o', ms=8)
-                if planets['Uranus'][0]:
-                    plt.plot(urax, uray, 'b-')
-                    plt.plot(ux, uy, 'o', ms=8)
-                if planets['Neptune'][0]:
-                    plt.plot(nepx, nepy, 'b-')
-                    plt.plot(nx, ny, 'o', ms=8)
-
+                for planet, properties in planets.items():
+                    if planets[planet][0]:
+                        plt.plot(*zip(*properties[4]), 'b-')
+                        plt.plot(*zip(properties[4][-1]), 'o', ms=8)
                 # Sun
                 plt.plot(0, 0, 'yo', ms=10)
-                plt.plot(hohmann_x, hohmann_y, 'r-')
-                plt.plot(x, y, 'x', ms=5)
+                # Transfer Orbit
+                plt.plot(*zip(*hohmann), 'r-')
+                plt.plot(*zip(hohmann[-1]), 'x', ms=5)
 
                 # Set plot limits to largest radius + x
-                plt.grid()
                 lim = 0.4
+                mod = 1.4
                 for values in planets.values():
                     if values[0] and values[1] > lim:
-                        lim = values[1]
-                plt.xlim(-lim*1.1, lim*1.1)
-                plt.ylim(-lim*1.1, lim*1.1)
+                        lim = values[1] * mod
+                plt.grid()
                 plt.xlabel("x / AU")
                 plt.ylabel("y / AU")
                 plt.axis("equal")
+                plt.axis([-lim, lim, -lim, lim])
                 plt.savefig(save_path + str(i) + '.png')
                 fig.clear()
                 plt.cla()
@@ -329,5 +266,5 @@ class app:
         print('\nDone!')
 
 root = tk.Tk()
-gui = app(root)
+gui = App(root)
 root.mainloop()
