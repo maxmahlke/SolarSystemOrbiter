@@ -71,14 +71,10 @@ class App:
         self.save_p = tk.StringVar()
         self.save_p.set(os.getcwd() + '/MyBigTrip/')
 
-        self.entry_offs = tk.Entry(self.transfer_frame, textvariable=self.offs)
-        self.entry_offs.grid(row=6, column=0, sticky='EW')
-        #self.entry_offs.state(['disabled'])
+        tk.Entry(self.transfer_frame, textvariable=self.offs).grid(row=6, column=0, sticky='EW')
         tk.Label(self.transfer_frame, text='Planet Offset in Degree').grid(row=6, column=2, sticky='E')
         self.duration = tk.DoubleVar()
-        self.entry_duration = tk.Entry(self.transfer_frame, textvariable=self.duration)
-        self.entry_duration.grid(row=7, column=0, sticky='EW')
-        #self.entry_duration.state(['disabled'])
+        tk.Entry(self.transfer_frame, textvariable=self.duration).grid(row=7, column=0, sticky='EW')
         tk.Label(self.transfer_frame, text='Flight Duration in Earth Weeks').grid(row=7, column=2, sticky='E')
 
         tk.Checkbutton(self.transfer_frame, text='Acceleration at Apohelion', variable=self.second).grid(row=5, column=0, sticky='EW')
