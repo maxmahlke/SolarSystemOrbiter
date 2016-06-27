@@ -1,7 +1,7 @@
 # SolarSystemOrbiter
 Plot the orbits of the planets in our Solar System and calculate the [Hohmann Transfer Orbits](https://en.wikipedia.org/wiki/Hohmann_transfer_orbit) to transfer your rocket ship from one to the other and back. Plot your route and create a travel movie to show your family and friends!
 
-![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/SolarSystemOrbiter/htm/venus_mars.png?raw=true)
+![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/SolarSystemOrbiter/htm/earth_mars.png?raw=true)
 
 ### How to install
 Download the .zip or clone the repository, and you're done!
@@ -40,5 +40,7 @@ Here is the math behind the calculation of the HTM and an examplary calculation 
 
 
 ### To-Do
+* Introduce elliptical planet orbits
+* Add names of planet to orbits
 * Order of images in GIF appears to be messed up
 * Include Planet IX
