@@ -1,6 +1,4 @@
 #! /usr/bin/env python
-
-import matplotlib.pyplot as plt
 import tkinter as tk
 from tkinter import ttk
 from _tkinter import TclError
@@ -11,6 +9,8 @@ import imageio
 import os
 import numpy as np
 import minibar
+import matplotlib.pyplot as plt
+plt.style.use('seaborn-dark')
 
 
 class App:
@@ -134,37 +134,32 @@ class App:
             print('You have to select origin and destiantion for the Hohmann Transfer Orbit')
             return 0
 
-        # Planet: Plotting Boolean, distances to sun in AU, angle
-        planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0.], 'Venus': [self.venus.get(), 0.723, 0.615, 0.],
-                   'Earth': [self.earth.get(), 1., 1., 0.], 'Mars': [self.mars.get(), 1.524,  1.88, 0.],
-                   'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0.], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0.],
-                   'Uranus': [self.uranus.get(), 19.20, 84, 0.], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0.]}
+        # Planet: Plotting Boolean, distances to sun in AU, angle, color for plot
+        planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0., 'Gold'], 'Venus': [self.venus.get(), 0.723, 0.615, 0., 'Coral'],
+                   'Earth': [self.earth.get(), 1., 1., 0., 'DarkBlue'], 'Mars': [self.mars.get(), 1.524,  1.88, 0., 'Crimson'],
+                   'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0., 'orange'], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0., 'Khaki'],
+                   'Uranus': [self.uranus.get(), 19.20, 84, 0., 'Turquoise'], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0., 'RoyalBlue']}
 
         nsteps = 7 * 15 * self.duration.get()
         planets[self.destination.get(self.destination.curselection())][3] = self.offs.get()
 
-        #fig = plt.figure()
-        #ax = fig.add_subplot(111)
-
         for planet, props in planets.items():
             if props[0]:
                 x, y = lf.leap_frog(int(nsteps), props[1], props[3])
-                plt.plot(x, y, marker=None, alpha=0.5)
-                plt.plot(x[-1], y[-1], marker='o', ms=8)
+                plt.plot(x, y, marker=None, color=props[-1], alpha=0.7)
+                plt.plot(x[-1], y[-1], marker='o', ms=8, color=props[-1])
             # Sun
             sun_x = 0.
             sun_y = 0.
             shift = -4  # in points
-            plt.plot(sun_x, sun_y, 'yo', ms=10)
-            #plt.annotate("Sun", xy=(sun_x, sun_y), xycoords='data',
-            #            xytext=(shift, shift), textcoords='offset points', color='y',
-            #            fontsize=15, style='italic')
+            plt.plot(sun_x, sun_y, marker='o', ms=10, color='Yellow')
+
         # Plot Hohmann
         print('Fueling Rocket..')
         print('Launching Rocket..')
         transfer_x, transfer_y = hm.hohmann(int(nsteps), planets[self.origin.get(self.origin.curselection())][1],
                                             planets[self.destination.get(self.destination.curselection())][1], self.second.get())
-        plt.plot(transfer_x, transfer_y)
+        plt.plot(transfer_x, transfer_y, '--', color='Maroon')
         # Set plot limits to largest radius + x
         lim = 0.4
         for values in planets.values():
@@ -190,10 +185,10 @@ class App:
         print('3.. 2.. 1.. Liftoff! ..')
 
         # Planet: Plotting Boolean, distances to sun in AU, Offset Angle, Position array
-        planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0., []], 'Venus': [self.venus.get(), 0.723, 0.615, 0., []],
-                   'Earth': [self.earth.get(), 1., 1., 0., []], 'Mars': [self.mars.get(), 1.524,  1.88, 0., []],
-                   'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0., []], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0., []],
-                   'Uranus': [self.uranus.get(), 19.20, 84, 0., []], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0., []]}
+        planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0., 'Gold', []], 'Venus': [self.venus.get(), 0.723, 0.615, 0., 'Coral', []],
+                   'Earth': [self.earth.get(), 1., 1., 0., 'DarkBlue', []], 'Mars': [self.mars.get(), 1.524,  1.88, 0., 'Crimson', []],
+                   'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0., 'orange', []], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0., 'Khaki', []],
+                   'Uranus': [self.uranus.get(), 19.20, 84, 0., 'Turquoise', []], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0., 'RoyalBlue', []]}
 
         # Make save directory if necessary
         save_path = self.save_p.get()
@@ -221,20 +216,20 @@ class App:
             # Calculate next coordinates and append to position array
             for planet, properties in planets.items():
                 if properties[0]:
-                    properties[4].append(next(properties[5]))
+                    properties[5].append(next(properties[6]))
             i += 1
             nth = int(nsteps/50)
             if i % nth == 0 or i == nsteps-1:
                 fig = plt.Figure()
                 for planet, properties in planets.items():
                     if planets[planet][0]:
-                        plt.plot(*zip(*properties[4]), 'b-')
-                        plt.plot(*zip(properties[4][-1]), 'o', ms=8)
+                        plt.plot(*zip(*properties[5]), marker=None, color=properties[4], alpha=0.7)
+                        plt.plot(*zip(properties[5][-1]), 'o', ms=8, color=properties[4])
                 # Sun
                 plt.plot(0, 0, 'yo', ms=10)
                 # Transfer Orbit
-                plt.plot(*zip(*hohmann), 'r-')
-                plt.plot(*zip(hohmann[-1]), 'x', ms=5)
+                plt.plot(*zip(*hohmann), '--', color='Maroon')
+                plt.plot(*zip(hohmann[-1]), ms=5, color='Maroon')
 
                 # Set plot limits to largest radius + x
                 lim = 0.4
@@ -258,7 +253,7 @@ class App:
         image_files.sort()
         for filename in minibar.bar(image_files, template=moviebar):
             images.append(imageio.imread(filename))
-            imageio.mimsave(save_path + 'HohmannTransfer.gif', images)  # Save object dictionary entry to text file
+            imageio.mimsave(save_path + 'HohmannTransfer.gif', images)
         print('\nDone!')
 
 root = tk.Tk()
