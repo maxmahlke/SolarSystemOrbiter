@@ -58,7 +58,7 @@ def hohmann(nsteps, d_o, d_d, second):
     y = []
     travelled_distance = 0
     # Progress Bar
-    progress = "Transversing through Space.. {bar}  {eta}"
+    progress = "Transversing through Space.. {bar}"
     for step in minibar.bar(range(0, nsteps), template=progress):
         x.append(x_0 / AU)
         y.append(y_0 / AU)
@@ -76,7 +76,7 @@ def hohmann(nsteps, d_o, d_d, second):
         #     plt.savefig('/Users/Max/Desktop/CA/' + str(step) + '.png')
         # # Check if we have reached Target yet
         if y_0 >= r_1*0.9999:
-            if second:    
+            if second:
                 if not second_impulse:
                     v_x_0 -= np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
                     v_x_1 -= np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
