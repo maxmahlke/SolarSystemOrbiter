@@ -224,11 +224,11 @@ class App:
                 for planet, properties in planets.items():
                     if planets[planet][0]:
                         plt.plot(*zip(*properties[5]), marker=None, color=properties[4], alpha=0.7)
-                        plt.plot(*zip(properties[5][-1]), 'o', ms=8, color=properties[4])
+                        plt.plot(*zip(properties[5][-1]), marker='o', ms=8, color=properties[4])
                 # Sun
                 plt.plot(0, 0, 'yo', ms=10)
                 # Transfer Orbit
-                plt.plot(*zip(*hohmann), '--', color='Maroon')
+                plt.plot(*zip(*hohmann), marker='--', color='Maroon')
                 plt.plot(*zip(hohmann[-1]), ms=5, color='Maroon')
 
                 # Set plot limits to largest radius + x
