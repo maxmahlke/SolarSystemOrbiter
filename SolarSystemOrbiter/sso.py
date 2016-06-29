@@ -1,7 +1,12 @@
 #! /usr/bin/env python
-import tkinter as tk
-from tkinter import ttk
-from _tkinter import TclError
+try:
+    import tkinter as tk
+    from tkinter import ttk
+    from _tkinter import TclError
+except ImportError:  # Python 2
+    import Tkinter as tk
+    from _tkinter import TclError
+    import ttk
 from calc import all_in_one
 from calc import hohmann as hm
 from calc import leap_frog as lf
