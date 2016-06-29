@@ -19,5 +19,6 @@ setup(
         "numpy",
         "imageio",
         "minibar",
+        "seaborn",
     ]
 )
