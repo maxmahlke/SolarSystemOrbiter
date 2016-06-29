@@ -197,8 +197,11 @@ class App:
 
         # Make save directory if necessary
         save_path = self.save_p.get()
-        os.makedirs(save_path, exist_ok=True)
-
+        try:
+            os.makedirs(save_path, exist_ok=True)
+        except TypeError:  # Python 2
+            if not os.path.exists(save_path):
+                os.mkdir(save_path)
         # Transfer array
         hohmann = []
 
@@ -233,7 +236,7 @@ class App:
                 # Sun
                 plt.plot(0, 0, 'yo', ms=10)
                 # Transfer Orbit
-                plt.plot(*zip(*hohmann), marker='--', color='Maroon')
+                plt.plot(*zip(*hohmann), linestyle='--', color='Maroon')
                 plt.plot(*zip(hohmann[-1]), ms=5, color='Maroon')
 
                 # Set plot limits to largest radius + x
