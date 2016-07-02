@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def hohmann(nsteps, d_o, d_d, second):
+def hohmann(nsteps, semi_major_o, eccentricity_o, semi_major_d, eccentricity_d, second):
     # d_o is distance of origin to sun in AU
     # d_d is distance of destination to sun in AU
     def step_x():
@@ -33,8 +33,10 @@ def hohmann(nsteps, d_o, d_d, second):
     G = 6.67e-11				# gravitational constant
     M = 1.998e30					# mass of Sun
 
-    angle = 0
+    angle = 0.
     a = angle * np.pi / 180
+    d_o = semi_major_o * (1 - eccentricity_o)  # Leave at perihelion
+    d_d = semi_major_d * 1  #(1 + eccentricity_d)  # Arrive at apohelion
     d_init = d_o * AU
     r_1 = d_d * AU
     v = np.sqrt(G*M/d_init) + np.sqrt(G*M/d_init) * (np.sqrt(2*r_1 / (r_1 + d_init)) - 1)
@@ -79,7 +81,7 @@ def hohmann(nsteps, d_o, d_d, second):
         yield x_0 / AU, y_0 / AU
 
 
-def leap_frog(nsteps, distance, angle):
+def leap_frog(nsteps, semi_major, eccentricity, angle):
     def step_x():
         # Calculate step in x, return incremented x
         x_1 = x_0 + delta * v_x_0
@@ -110,15 +112,16 @@ def leap_frog(nsteps, distance, angle):
     M = 1.998e30					# mass of Sun
 
     # Use distance and anlge to calculate inital positions x_0, y_0 and velocities
+    distance = semi_major * (1. - eccentricity)
     d = distance * AU
-    a = angle * np.pi / 180
-    v = np.sqrt(G*M/d)
+    theta = angle * np.pi / 180.
+    v = np.sqrt(G*M*(2./d - 1./(AU*semi_major)))
 
-    x_0 = d*np.sin(a)
-    y_0 = -d*np.cos(a)
+    x_0 = d*np.sin(theta)
+    y_0 = -d*np.cos(theta)
 
-    v_x_0 = v*np.cos(a)
-    v_y_0 = v*np.sin(a)
+    v_x_0 = v*np.cos(theta)
+    v_y_0 = v*np.sin(theta)
 
     delta = 2 * 3.141597 * 1*AU / np.sqrt(G*M/AU) / 365 / 15     # Step size is 1 Earth day
     # Taylor approximation of velocities at n=1/2

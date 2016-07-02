@@ -2,7 +2,7 @@ import numpy as np
 import minibar
 
 
-def hohmann(nsteps, d_o, d_d, second):
+def hohmann(nsteps, semi_major_o, eccentricity_o, semi_major_d, eccentricity_d, second):
     # d_o is distance of origin to sun in AU
     # d_d is distance of destination to sun in AU
     def step_x():
@@ -34,8 +34,10 @@ def hohmann(nsteps, d_o, d_d, second):
     G = 6.67e-11				# gravitational constant
     M = 1.998e30					# mass of Sun
 
-    angle = 0
+    angle = 0.
     a = angle * np.pi / 180
+    d_o = semi_major_o * (1 - eccentricity_o)  # Leave at perihelion
+    d_d = semi_major_d * 1  #(1 + eccentricity_d)  # Arrive at apohelion
     d_init = d_o * AU
     r_1 = d_d * AU
     v = np.sqrt(G*M/d_init) + np.sqrt(G*M/d_init) * (np.sqrt(2*r_1 / (r_1 + d_init)) - 1)

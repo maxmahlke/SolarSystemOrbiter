@@ -1,8 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
-def leap_frog(nsteps, distance, angle):
+def leap_frog(nsteps, semi_major, eccentricity, angle):
     def step_x():
         # Calculate step in x, return incremented x
         x_1 = x_0 + delta * v_x_0
@@ -28,25 +27,26 @@ def leap_frog(nsteps, distance, angle):
         r_0 = np.sqrt(x**2 + y**2)
         return r_0
 
-    AU = 150e9
+    AU = 149.6e9
     G = 6.67e-11				# gravitational constant
     M = 1.998e30					# mass of Sun
 
     # Use distance and anlge to calculate inital positions x_0, y_0 and velocities
+    distance = semi_major * (1. - eccentricity)
     d = distance * AU
-    a = angle * np.pi / 180
-    v = np.sqrt(G*M/d)
+    theta = angle * np.pi / 180.
+    v = np.sqrt(G*M*(2./d - 1./(AU*semi_major)))
 
-    x_0 = d*np.sin(a)
-    y_0 = -d*np.cos(a)
+    x_0 = d*np.sin(theta)
+    y_0 = -d*np.cos(theta)
 
-    v_x_0 = v*np.cos(a)
-    v_y_0 = v*np.sin(a)
+    v_x_0 = v*np.cos(theta)
+    v_y_0 = v*np.sin(theta)
 
-    delta = 2 * 3.141597 * 1*AU / np.sqrt(G*M/AU) / 365 / 15      # Step size is 1 Earth day
+    delta = 2. * 3.141597 * AU / np.sqrt(G*M/AU) / 365. / 15.      # Step size is 1 / 15 Earth day
     # Taylor approximation of velocities at n=1/2
-    v_x_0 = v_x_0 - G*M*x_0/r(x_0, y_0)**3 * delta/2
-    v_y_0 = v_y_0 - G*M*y_0/r(x_0, y_0)**3 * delta/2
+    v_x_0 = v_x_0 - G*M*x_0/r(x_0, y_0)**3 * delta/2.
+    v_y_0 = v_y_0 - G*M*y_0/r(x_0, y_0)**3 * delta/2.
 
     x = []
     y = []
