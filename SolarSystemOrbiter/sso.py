@@ -59,7 +59,7 @@ class App:
         self.plot_hohmann = tk.BooleanVar()
 
         self.plot_hohmann_check = ttk.Checkbutton(self.transfer_frame, text='Plot Hohmann Transfer Orbit', variable=self.plot_hohmann)
-        self.plot_hohmann_check.grid(row=4, column=0, sticky='EW', padx=5, pady=5)
+        self.plot_hohmann_check.grid(row=6, column=0, sticky='EW', padx=5, pady=5)
 
         self.origin = tk.Listbox(self.transfer_frame, exportselection=0)
         self.origin.grid(row=5, column=0, sticky='EW')
@@ -86,7 +86,7 @@ class App:
         tk.Entry(self.transfer_frame, textvariable=self.duration).grid(row=8, column=0, sticky='EW')
         tk.Label(self.transfer_frame, text='Flight Duration in Earth Weeks').grid(row=8, column=2, sticky='E')
 
-        tk.Checkbutton(self.transfer_frame, text='Acceleration at Apohelion', variable=self.second).grid(row=6, column=0, sticky='EW')
+        tk.Checkbutton(self.transfer_frame, text='Acceleration at Apohelion', variable=self.second).grid(row=6, column=2, sticky='EW')
 
         self.calc = ttk.Button(master, text='Get Rocket Trajectory', command=self.calc)
         self.calc.grid(column=0, row=9, sticky='EW')
@@ -151,8 +151,12 @@ class App:
                    'Uranus': [self.uranus.get(), 19.20, 0.046, 84, 0., 'Turquoise'], 'Neptune': [self.neptune.get(), 30.06, 0.011, 164.79, 0., 'RoyalBlue']}
 
         nsteps = 7 * 15 * self.duration.get()
+        # Set offset angle of destination planet
+        # and eccentricity of origin and destinaiton
         if self.plot_hohmann.get():
             planets[self.destination.get(self.destination.curselection())][4] = self.offs.get()
+            planets[self.destination.get(self.destination.curselection())][2] = 0.
+            planets[self.origin.get(self.origin.curselection())][2] = 0.
 
         # Set planet offsets to random values, unless desitnation or target planet
         # Hohmann orbit optional
@@ -228,6 +232,9 @@ class App:
         # Set planet angle equal to calculated required angular offset
         if self.plot_hohmann.get():
             planets[self.destination.get(self.destination.curselection())][4] = self.offs.get()
+            planets[self.destination.get(self.destination.curselection())][2] = 0.
+            planets[self.origin.get(self.origin.curselection())][2] = 0.
+        
         for planet in planets:
             if self.plot_hohmann.get():
                 if str(planet) == str(self.destination.get(self.destination.curselection())) or \
