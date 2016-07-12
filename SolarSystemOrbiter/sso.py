@@ -237,7 +237,7 @@ class App:
             planets[self.destination.get(self.destination.curselection())][4] = self.offs.get()
             planets[self.destination.get(self.destination.curselection())][2] = 0.
             planets[self.origin.get(self.origin.curselection())][2] = 0.
-       
+
         for planet in planets:
             if self.plot_hohmann.get():
                 if str(planet) == str(self.destination.get(self.destination.curselection())) or \
@@ -265,8 +265,8 @@ class App:
                 fig = plt.Figure()
                 for planet, properties in planets.items():
                     if planets[planet][0]:
-                        plt.plot(*zip(*properties[5]), marker=None, color=properties[4], alpha=0.7)
-                        plt.plot(*zip(properties[5][-1]), marker='o', ms=8, color=properties[4])
+                        plt.plot(*zip(*properties[6]), marker=None, color=properties[5], alpha=0.7)
+                        plt.plot(*zip(properties[6][-1]), marker='o', ms=8, color=properties[5])
                 # Sun
                 plt.plot(0, 0, 'yo', ms=10)
                 # Transfer Orbit
