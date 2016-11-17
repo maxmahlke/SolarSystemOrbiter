@@ -84,7 +84,7 @@ def hohmann(nsteps, semi_major_o, eccentricity_o, semi_major_d, eccentricity_d, 
                     v_x_1 -= np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
                     second_impulse = True
     print('\nOrbit transfer completed.')
-    print('Transfer time: %f Earth years.' % (nsteps / 7 / 15 / 52))
-    print('Transfer distance: %f AU' % (travelled_distance / AU))
+    print('Transfer time: {:.1f} Earth years.'.format(nsteps / 7 / 15 / 52))
+    print('Transfer distance: {:.1f} AU'.format(travelled_distance / AU))
 
     return x, y

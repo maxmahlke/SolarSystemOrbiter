@@ -14,6 +14,8 @@ import imageio
 import os
 import numpy as np
 import minibar
+import matplotlib
+matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-dark')
 
