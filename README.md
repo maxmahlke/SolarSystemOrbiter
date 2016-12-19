@@ -41,9 +41,11 @@ The orbits of the planets reflect their actual distances and eccentricities. If 
 Here is the math behind the calculation of the HTM and an examplary calculation for a Earth-Mars transfer:
 ![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/SolarSystemOrbiter/htm/maths.png?raw=true)
 
+In the end, all we do is accelerate our rocket ship at the start and see how its trajectory is influenced by the Sun's gravity field.
 
 ### To-Do
 * Add names of planet to orbits
 * Order of images in GIF appears to be messed up
 * Include Planet IX
-* Include Gravity Assist Orbits
+* Add real planet's positions for acutal dates. Look for possible next date for HT / GAM between planets.
+* Long-term goal: Itineraries of Hohmann Transfers and GAMs. Comparison of energies and times required
