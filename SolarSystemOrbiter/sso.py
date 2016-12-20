@@ -9,12 +9,9 @@ except ImportError:  # Python 2
     import ttk
 
 import calculations
-#from calc import hohmann as hm
-#from calc import planets as pl
 import imageio
 import os
 import numpy as np
-import minibar
 import matplotlib
 import collections
 matplotlib.use("TkAgg")
@@ -390,12 +387,11 @@ class App:
         #clean weird None yields
         hohmann = [h for h in hohmann if h != None]
 
-        moviebar = "Shooting movie.. {bar}"
         images = []
         image_files = [save_path + f for f in os.listdir(save_path) if os.path.isfile(os.path.join(save_path, f)) and f[-4:] == '.png']
         image_files.sort()
         # Skip creating gif for now. Takes to long and messes up image order
-        #for filename in minibar.bar(image_files, template=moviebar):
+        #for filename in image_files:
         #    images.append(imageio.imread(filename))
         #    imageio.mimsave(save_path + 'HohmannTransfer.gif', images)
         print('\nDone!')

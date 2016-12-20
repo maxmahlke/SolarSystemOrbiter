@@ -14,7 +14,7 @@ The instructions below are a little outdated, but summarize the main functionali
 
 ### How to install
 Download the .zip or clone the repository, and you're done!
-The script is written in Python 3, but also Python 2 compatible. It requires the *numpy*, *matplotlib*, *seaborn*, *tkinter*, *imageio*, and the [*minibar*](https://github.com/canassa/minibar) package. All these packages can be acquired with the pip installer
+The script is written in Python 3, but also Python 2 compatible. It requires the *numpy*, *matplotlib*, *seaborn*, *tkinter*, and *imageio*. All these packages can be acquired with the pip installer
 
 `pip install *package*`  
 
