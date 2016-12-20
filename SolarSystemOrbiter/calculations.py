@@ -63,6 +63,7 @@ def hohmann(steps, origin, target, mode, movie):
     v_x_0 -= G*M*x_0/r(x_0, y_0)**3 * delta/2
     v_y_0 -= G*M*y_0/r(x_0, y_0)**3 * delta/2
 
+
     # Maneuvers at target planet. We can do nothing, perform an GAM or use a second impulse
     # to insert the spacecraft into the orbit of the target planet. If GAM, the SoI is relevant.
     sphere_of_influence = r_1*0.0001
@@ -109,6 +110,7 @@ def hohmann(steps, origin, target, mode, movie):
                     if not gam_impulse:
                         print(u'\U0001f680 : Reached Sphere of Influence of Target Planet.\n    Performing Gravity Assist Maneuver..')
                         v_x_0, v_y_0 = GAM((x_1, y_1), (target_x, target_y), (v_x_1, v_y_1), target, movie)
+                        #plt.plot((x_1, target_x), (y_1, target_y))
                         gam_impulse = True # impulse has been provided now
                 elif mode == 1: # Orbit injection
                     # If we want to insert the spacecraft into the orbit of the target planet
@@ -156,6 +158,7 @@ def planets(steps, semi_major, eccentricity, angle):
         y_1 = step_position(y_0, v_y_0, delta)
         v_x_1 = step_velocity(v_x_0, x_1, y_1, delta, M)
         v_y_1 = step_velocity(v_y_0, y_1, x_1, delta, M)
+
         x_0 = x_1
         y_0 = y_1
         v_x_0 = v_x_1
