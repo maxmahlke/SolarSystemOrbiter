@@ -1,5 +1,5 @@
 # SolarSystemOrbiter
-Plot the orbits of the planets in our Solar System and calculate the [Hohmann Transfer Orbits](https://en.wikipedia.org/wiki/Hohmann_transfer_orbit) to transfer your rocket ship from one to the other and back.
+Plot the orbits of the planets in our Solar System and calculate the [Hohmann Transfer Orbits](https://en.wikipedia.org/wiki/Hohmann_transfer_orbit) and [Gravity Assist Maneuvers](https://en.wikipedia.org/wiki/Gravity_assist) to transfer your rocket ship from one to the other and back.
 
 ![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/SolarSystemOrbiter/htm/earth_mars.png?raw=true)
 
