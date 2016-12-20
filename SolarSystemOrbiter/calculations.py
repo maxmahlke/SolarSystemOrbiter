@@ -257,9 +257,9 @@ def GAM(position_spacecraft, position_planet, velocity_spacecraft, target, movie
 		plt.axis('equal')
 		if not movie:
 			f.show()
-		else:
-			plt.savefig('/Users/max/Desktop/gam.png')
-			plt.gcf().clf()
+#		else:
+#			plt.savefig('gam.png')
+#			plt.gcf().clf()
 
 	# Transform velocities back to heliocentric frame of reference
 	# Planet's movement not considered...
