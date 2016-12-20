@@ -7,14 +7,16 @@ except ImportError:  # Python 2
     import Tkinter as tk
     from _tkinter import TclError
     import ttk
-from calc import all_in_one
-from calc import hohmann as hm
-from calc import leap_frog as lf
+
+import calculations
+#from calc import hohmann as hm
+#from calc import planets as pl
 import imageio
 import os
 import numpy as np
 import minibar
 import matplotlib
+import collections
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-dark')
@@ -58,11 +60,6 @@ class App:
         self.transfer_frame = ttk.LabelFrame(master, text='Choose Origin and Destination')
         self.transfer_frame.grid(row=4, columnspan=5, sticky='EW')
 
-        self.plot_hohmann = tk.BooleanVar()
-
-        self.plot_hohmann_check = ttk.Checkbutton(self.transfer_frame, text='Plot Hohmann Transfer Orbit', variable=self.plot_hohmann)
-        self.plot_hohmann_check.grid(row=6, column=0, sticky='EW', padx=5, pady=5)
-
         self.origin = tk.Listbox(self.transfer_frame, exportselection=0)
         self.origin.grid(row=5, column=0, sticky='EW')
         planets = ['Neptune', 'Uranus', 'Saturn', 'Jupiter', 'Mars', 'Earth', 'Venus', 'Mercury']
@@ -74,6 +71,19 @@ class App:
         for planet in planets:
             self.destination.insert(0, planet)
 
+        self.plot_hohmann = tk.BooleanVar()
+
+        self.plot_hohmann_check = ttk.Checkbutton(self.transfer_frame, text='Plot Hohmann Transfer Orbit', variable=self.plot_hohmann)
+        self.plot_hohmann_check.grid(row=6, column=0, sticky='EW', padx=5, pady=5)
+
+
+        # Mode selection: Orbit Injection, GAM, Nothing
+        self.mode = tk.IntVar()
+
+        tk.Radiobutton(self.transfer_frame, text='No Impulse', variable=self.mode, value=0).grid(row=6, column=2, sticky='EW')
+        tk.Radiobutton(self.transfer_frame, text='Orbit Injection', variable=self.mode, value=1).grid(row=7, column=0, sticky='EW')
+        tk.Radiobutton(self.transfer_frame, text='GAM', variable=self.mode, value=2).grid(row=7, column=2, sticky='EW')
+
         # Planet offset in degree
         self.offs = tk.DoubleVar()
         # Boolean for acceleration at apohelion
@@ -81,26 +91,48 @@ class App:
         # File path for output images
         self.save_p = tk.StringVar()
         self.save_p.set(os.getcwd() + '/MyBigTrip/')
-
-        tk.Entry(self.transfer_frame, textvariable=self.offs).grid(row=7, column=0, sticky='EW')
-        tk.Label(self.transfer_frame, text='Planet Offset in Degree').grid(row=7, column=2, sticky='E')
+        tk.Entry(self.transfer_frame, textvariable=self.offs).grid(row=8, column=0, sticky='EW')
+        tk.Label(self.transfer_frame, text='Planet Offset in Degree').grid(row=8, column=2, sticky='E')
         self.duration = tk.DoubleVar()
-        tk.Entry(self.transfer_frame, textvariable=self.duration).grid(row=8, column=0, sticky='EW')
-        tk.Label(self.transfer_frame, text='Flight Duration in Earth Weeks').grid(row=8, column=2, sticky='E')
+        tk.Entry(self.transfer_frame, textvariable=self.duration).grid(row=9, column=0, sticky='EW')
+        tk.Label(self.transfer_frame, text='Flight Duration in Earth Weeks').grid(row=9, column=2, sticky='E')
 
-        tk.Checkbutton(self.transfer_frame, text='Acceleration at Apohelion', variable=self.second).grid(row=6, column=2, sticky='EW')
-
-        self.calc = ttk.Button(master, text='Get Rocket Trajectory', command=self.calc)
-        self.calc.grid(column=0, row=9, sticky='EW')
+        self.calc = ttk.Button(master, text='Get Rocket Trajectory', command=self.calculate)
+        self.calc.grid(column=0, row=10, sticky='EW')
 
         self.plot = ttk.Button(master, text='Plot', command=self.plot)
-        self.plot.grid(column=2, row=9, sticky='EW')
+        self.plot.grid(column=2, row=10, sticky='EW')
 
-        tk.Entry(self.master, textvariable=self.save_p).grid(row=10, column=0)
+        tk.Entry(self.master, textvariable=self.save_p).grid(row=11, column=0)
         self.movie = ttk.Button(master, text='Make Movie', command=self.movie)
-        self.movie.grid(column=2, row=10, sticky='EW')
+        self.movie.grid(column=2, row=11, sticky='EW')
 
-    def calc(self):
+        # Set-up intital scenario for easy use
+        self.mode.set(2)
+        self.plot_hohmann.set(True)
+        self.earth.set(True)
+        self.mars.set(True)
+        self.jupiter.set(True)
+        self.saturn.set(True)
+        self.uranus.set(True)
+        self.origin.select_set(2)
+        self.destination.select_set(5)
+        self.duration.set(800.)
+        self.offs.set(105.76)
+
+    def solar_system_planets(self):
+       # Planet: Plotting Boolean, semi-major axis in AU, eccentricity, orbital period, angle, color for plot, mass of planet, list of positions (calculated later)
+        planets = {'Mercury': {'plotting': self.mercury.get(), 'semi_major': 0.387, 'eccentricity': 0.205, 'orbital_period': 0.241,'angular_offset':  0., 'color': 'Gold', 'mass': 3.302e23, 'position':[]},
+                   'Venus': {'plotting': self.venus.get(), 'semi_major': 0.723, 'eccentricity': 0.007, 'orbital_period': 0.615,'angular_offset':  0., 'color': 'Coral', 'mass': 4.8685e24, 'position':[]},
+                   'Earth': {'plotting': self.earth.get(), 'semi_major': 1., 'eccentricity': 0.017, 'orbital_period': 1.,'angular_offset':  0., 'color': 'DarkBlue', 'mass': 5.9736e24, 'position':[]},
+                   'Mars': {'plotting': self.mars.get(), 'semi_major': 1.524, 'eccentricity': 0.094, 'orbital_period': 1.88,'angular_offset':  0., 'color': 'Crimson', 'mass': 6.4185e23, 'position':[]},
+                   'Jupiter': {'plotting': self.jupiter.get(), 'semi_major': 5.203, 'eccentricity': 0.049, 'orbital_period': 11.9,'angular_offset':  0., 'color': 'orange', 'mass': 1.899e27, 'position':[]},
+                   'Saturn': {'plotting': self.saturn.get(), 'semi_major': 9.58, 'eccentricity': 0.057, 'orbital_period': 29.5,'angular_offset':  0., 'color': 'Khaki', 'mass': 5.6846e26, 'position':[]},
+                   'Uranus': {'plotting': self.uranus.get(), 'semi_major': 19.20, 'eccentricity': 0.046, 'orbital_period': 84, 'angular_offset': 0., 'color': 'Turquoise', 'mass': 8.6832e25, 'position':[]},
+                   'Neptune': {'plotting': self.neptune.get(), 'semi_major': 30.06, 'eccentricity': 0.011, 'orbital_period': 164.79,'angular_offset':  0., 'color': 'RoyalBlue', 'mass': 1.0243e26, 'position':[]}}
+        return planets # dictionary of dictionaries with planet stats (used namedtuples before, but the attributes have to be mutable)
+
+    def calculate(self):
         # Have to select origin and destination of Hohmann Transfer. If not,
         # this function just returns a message and does nothing
         try:
@@ -109,17 +141,20 @@ class App:
             print('You have to select origin and destiantion for the Hohmann Transfer Orbit')
             return 0
 
-        print('Calculating Rocket trajectory..')
+        print('\nCalculating Rocket trajectory..')
 
-        planets = {'Mercury': [self.mercury.get(), 0.387, 0.241, 0.], 'Venus': [self.venus.get(), 0.723, 0.615, 0.],
-                   'Earth': [self.earth.get(), 1., 1., 0.], 'Mars': [self.mars.get(), 1.524,  1.88, 0.],
-                   'Jupiter': [self.jupiter.get(), 5.203, 11.9, 0.], 'Saturn': [self.saturn.get(), 9.58, 29.5, 0.],
-                   'Uranus': [self.uranus.get(), 19.20, 84, 0.], 'Neptune': [self.neptune.get(), 30.06, 164.79, 0.]}
+        # Read in planet selection for Hohmann Transfer from UI
+        origin_planet = self.origin.get(self.origin.curselection())
+        target_planet = self.destination.get(self.destination.curselection())
+
+        # Create Planet quasi-class with function
+        planets = self.solar_system_planets()
 
         # Calculates travel time of rocket and required angular offset of planets
-        d_o = planets[self.origin.get(self.origin.curselection())][1]
-        d_d = planets[self.destination.get(self.destination.curselection())][1]
-        T_d = planets[self.destination.get(self.destination.curselection())][2]
+        d_o = planets[origin_planet]['semi_major']
+        d_d = planets[target_planet]['semi_major']
+        T_d = planets[target_planet]['orbital_period']
+
         # Travel time
         # Using Keplers third law in units of 1 AU and 1 Earth year: T^2 = a^3
         a = (d_o + d_d) / 2
@@ -133,94 +168,145 @@ class App:
         t = T * 52
         off = 180-off
 
+        # Set values in UI fields for Angular Offset and Flight Duration
         self.duration.set(round(t, 2))
         self.offs.set(round(off, 2))
 
     def plot(self):
         # Have to select origin and destination of Hohmann Transfer if hohmann should be plotted. If not,
         # this function just returns a message and does nothing
-        if self.plot_hohmann.get():
+        perform_hohmann_transfer = self.plot_hohmann.get()
+        if perform_hohmann_transfer:
             try:
                 a, b = self.origin.get(self.origin.curselection()), self.destination.curselection()
             except TclError:
                 print('You have to select origin and destiantion for the Hohmann Transfer Orbit')
                 return 0
 
-        # Planet: Plotting Boolean, semi-major axis in AU, eccentricity, orbital period, angle, color for plot
-        planets = {'Mercury': [self.mercury.get(), 0.387, 0.205, 0.241, 0., 'Gold'], 'Venus': [self.venus.get(), 0.723, 0.007, 0.615, 0., 'Coral'],
-                   'Earth': [self.earth.get(), 1., 0.017, 1., 0., 'DarkBlue'], 'Mars': [self.mars.get(), 1.524, 0.094, 1.88, 0., 'Crimson'],
-                   'Jupiter': [self.jupiter.get(), 5.203, 0.049, 11.9, 0., 'orange'], 'Saturn': [self.saturn.get(), 9.58, 0.057, 29.5, 0., 'Khaki'],
-                   'Uranus': [self.uranus.get(), 19.20, 0.046, 84, 0., 'Turquoise'], 'Neptune': [self.neptune.get(), 30.06, 0.011, 164.79, 0., 'RoyalBlue']}
+        # Read in planet selection for Hohmann Transfer from UI
+        origin_planet = self.origin.get(self.origin.curselection())
+        target_planet = self.destination.get(self.destination.curselection())
 
-        nsteps = 7 * 15 * self.duration.get()
-        # Set offset angle of destination planet
-        # and eccentricity of origin and destinaiton
-        if self.plot_hohmann.get():
-            planets[self.destination.get(self.destination.curselection())][4] = self.offs.get()
-            planets[self.destination.get(self.destination.curselection())][2] = 0.
-            planets[self.origin.get(self.origin.curselection())][2] = 0.
+        # Create Planet quasi-class with function
+        planets = self.solar_system_planets()
+
+        # Integration steps. Number of steps is trade-off between accuracy and computational expense
+        steps = int(7 * 600 * self.duration.get())
+
+        # Set offset angle of destination planet for HT timing
+        # and eccentricity of origin and destinaiton to zero (HT assumes circular orbits)
+        if perform_hohmann_transfer:
+            planets[target_planet]['angular_offset'] = self.offs.get()
+            planets[target_planet]['eccentricity'] = 0.
+            planets[origin_planet]['eccentricity'] = 0.
 
         # Set planet offsets to random values, unless desitnation or target planet
         # Hohmann orbit optional
         for planet in planets:
-            if self.plot_hohmann.get():
-                if str(planet) == str(self.destination.get(self.destination.curselection())) or \
-                   str(planet) == str(self.origin.get(self.origin.curselection())):
+            if perform_hohmann_transfer:
+                if planet in [target_planet, origin_planet]:  # for HT planets, offset already set above
                     continue
-            planets[planet][4] = np.random.randint(0, 360)  # Random angle between 0 and 360 degree
-        for planet, props in planets.items():
-            if props[0]:
-                x, y = lf.leap_frog(int(nsteps), props[1], props[2], props[4])
-                plt.plot(x, y, marker=None, color=props[-1], alpha=0.7)
-                try:
-                    plt.plot(x[-1], y[-1], marker='o', ms=8, color=props[-1])
-                except IndexError:
-                    print('Flight Duration cannot be zero.')
-                    return 0
-            # Sun
-            sun_x = 0.
-            sun_y = 0.
-            shift = -4  # in points
-            plt.plot(sun_x, sun_y, marker='o', ms=10, color='Yellow')
-
-        # Plot Hohmann
-        if self.plot_hohmann.get():
-            print('Fueling Rocket..')
-            print('Launching Rocket..')
-            transfer_x, transfer_y = hm.hohmann(int(nsteps), planets[self.origin.get(self.origin.curselection())][1], planets[self.origin.get(self.origin.curselection())][2],
-                                                planets[self.destination.get(self.destination.curselection())][1], planets[self.destination.get(self.destination.curselection())][2], self.second.get())
-            plt.plot(transfer_x, transfer_y, '--', color='Maroon')
+            planets[planet]['angular_offset'] = np.random.randint(0, 360)  # Random angle between 0 and 360 degree
+        
+        # If planet is plotted:
+        # Create generators to calculate positions of planets
+        # and plot limits
         # Set plot limits to largest radius + x
         lim = 0.4
-        for values in planets.values():
-            if values[0] and values[1] > lim:
-                lim = values[1]
+        for planet in planets:
+            if planets[planet]['plotting'] or  planet in [origin_planet, target_planet]:
+                if planets[planet]['semi_major'] > lim:
+                        lim = planets[planet]['semi_major']
+                planets[planet]['generator'] = calculations.planets(steps, planets[planet]['semi_major'], planets[planet]['eccentricity'], planets[planet]['angular_offset'])
+        lim *= 1.5
+
+        # Calculate positions of planets and space-craft. Using iterators instead of functions allows to check for current positions and perform GAMs
+        
+        hohmann = [] # List of spacecraft positions for HT
+
+        # The mode variable defines if we want to do Second Impulse HT, GAM, nothing when arriving at the target planet
+
+        # The routine immediately starts comparing the positions of space-craft and target planet to
+        # find out if we have reached the sphere of incfluence. Since we have to update this value, we 
+        # use the generator send() function to change it at each integration step
+        movie = False
+        hohmann_transfer = calculations.hohmann(steps, planets[origin_planet], planets[target_planet], self.mode.get(), movie)
+        # initiate generator
+        hohmann_transfer.send(None)
+        hohmann_transfer.send((0, 0))  # fake target starting position
+        # appenrently cannot update generator we iterate over..
+        for step in range(0, steps):
+            #
+            #hohmann.append(next(hohmann_transfer))
+        
+            # If planet is plotted:
+            # Calculate next coordinates and append to position array
+            for planet in planets:
+                if planets[planet]['plotting'] or planet in [origin_planet, target_planet]:
+                    planets[planet]['position'].append(next(planets[planet]['generator']))
+            hohmann.append(hohmann_transfer.send(planets[target_planet]['position'][-1]))
+            hohmann.append(hohmann_transfer.send(planets[target_planet]['position'][-1]))
+        # Remove fake position from target planet
+        #planets[target_planet]['position'] = planets[target_planet]['position'][1:]
+        
+        #clean weird None yields
+        hohmann = [h for h in hohmann if h != None]
+        # Plot the Solar System simulation
+        fig = plt.figure(2)
+        for planet, properties in planets.items():
+            if planets[planet]['plotting']:
+                try:
+                    plt.plot(*zip(*planets[planet]['position']), marker=None, color=planets[planet]['color'], alpha=0.7)
+                    plt.plot(*zip(planets[planet]['position'][-1]), marker='o', ms=8, color=planets[planet]['color'])
+                except IndexError:
+                    print('Encounted IndexError when plotting. Have you entered a non-zero, positive flight-duration?')
+                    return 0
+        # Sun
+        plt.plot(0, 0, 'yo', ms=10)
+        # Transfer Orbit
+        plt.plot(*zip(*hohmann), linestyle='--', color='Maroon')
+        plt.plot(*zip(hohmann[-1]), ms=5, color='Maroon')
+        plt.grid()
+        plt.title('Solar System Simulation')
         plt.xlabel('x / AU')
         plt.ylabel('y / AU')
-        plt.axis("equal")
-        plt.xlim(-lim*1.5, lim*1.5)
-        plt.ylim(-lim*1.5, lim*1.5)
-        plt.grid()
-        plt.show()
+        plt.axis('equal')
+        plt.axis([-lim, lim, -lim, lim])
+        print('\nOrbit Transfer\t\t|\t Completed')
+        print('Origin Planet\t\t|\t {:s}'.format(origin_planet))
+        print('Target Planet\t\t|\t {:s}'.format(target_planet))
+        print('Transfer Time\t\t|\t {:.1f} Earth Years'.format(steps / 7 / 150 / 52))
+        print('Closest Planet\t\t|\t To Be Implemented')
+        # Calculate travelled distance
+        travelled_distance = 0
+        for i in range(len(hohmann)):
+        	try:
+        		travelled_distance += np.sqrt((hohmann[i][0]-hohmann[i+1][0])**2 + (hohmann[i][1]-hohmann[i+1][1])**2)
+        	except IndexError:
+        		break  # reached end of array
+        print('Transfer Distance\t|\t {:.1f} AU'.format(travelled_distance))
+        fig.show()
+
 
     def movie(self):
-        # Have to select origin and destination of Hohmann Transfer. If not,
+        # Have to select origin and destination of Hohmann Transfer if hohmann should be plotted. If not,
         # this function just returns a message and does nothing
-        if self.plot_hohmann.get():
+        perform_hohmann_transfer = self.plot_hohmann.get()
+        if perform_hohmann_transfer:
             try:
                 a, b = self.origin.get(self.origin.curselection()), self.destination.curselection()
             except TclError:
                 print('You have to select origin and destiantion for the Hohmann Transfer Orbit')
                 return 0
 
+        # Read in planet selection for Hohmann Transfer from UI
+        origin_planet = self.origin.get(self.origin.curselection())
+        target_planet = self.destination.get(self.destination.curselection())
+
+        # Create Planet quasi-class with function
+        planets = self.solar_system_planets()
+
         print('3.. 2.. 1.. Liftoff! ..')
-
-        # Planet: Plotting Boolean, semi-major axisin AU, eccentricity, Offset Angle, color, Position array
-        planets = {'Mercury': [self.mercury.get(), 0.387, 0.205, 0.241, 0., 'Gold', []], 'Venus': [self.venus.get(), 0.723, 0.007, 0.615, 0., 'Coral', []],
-                   'Earth': [self.earth.get(), 1., 0.017, 1., 0., 'DarkBlue', []], 'Mars': [self.mars.get(), 1.524, 0.094, 1.88, 0., 'Crimson', []],
-                   'Jupiter': [self.jupiter.get(), 5.203, 0.049, 11.9, 0., 'orange', []], 'Saturn': [self.saturn.get(), 9.58, 0.057, 29.5, 0., 'Khaki', []],
-                   'Uranus': [self.uranus.get(), 19.20, 0.046, 84, 0., 'Turquoise', []], 'Neptune': [self.neptune.get(), 30.06, 0.011, 164.79, 0., 'RoyalBlue', []]}
-
         # Make save directory if necessary
         save_path = self.save_p.get()
         try:
@@ -233,71 +319,85 @@ class App:
 
         # counter for images
         i = 0
-        nsteps = 7 * 15 * int(self.duration.get())
+        # Integration steps. Number of steps is trade-off between accuracy and computational expense        
+        steps = 7 * 600 * int(self.duration.get())
         # Set planet angle equal to calculated required angular offset
-        if self.plot_hohmann.get():
-            planets[self.destination.get(self.destination.curselection())][4] = self.offs.get()
-            planets[self.destination.get(self.destination.curselection())][2] = 0.
-            planets[self.origin.get(self.origin.curselection())][2] = 0.
+        if perform_hohmann_transfer:
+            planets[target_planet]['angular_offset'] = self.offs.get()
+            planets[target_planet]['eccentricity'] = 0.
+            planets[origin_planet]['eccentricity'] = 0.
 
         for planet in planets:
-            if self.plot_hohmann.get():
-                if str(planet) == str(self.destination.get(self.destination.curselection())) or \
-                   str(planet) == str(self.origin.get(self.origin.curselection())):
+            if perform_hohmann_transfer:
+                if planet in [target_planet, origin_planet]:  # for HT planets, offset already set above
                     continue
-            planets[planet][4] = np.random.randint(0, 360)  # Random angle between 0 and 360 degree
+            planets[planet]['angular_offset'] = np.random.randint(0, 360)  # Random angle between 0 and 360 degree
 
         # If planet is plotted:
         # Create generators to calculate positions of planets
-        for planet, properties in planets.items():
-            if properties[0]:
-                properties.append(all_in_one.leap_frog(nsteps, properties[1], properties[2], properties[4]))
+        # and plot limits
+        # Set plot limits to largest radius + x
+        lim = 0.4
+        for planet in planets:
+            if planets[planet]['plotting'] or planet in [target_planet, origin_planet]:
+                if planets[planet]['semi_major'] > lim:
+                        lim = planets[planet]['semi_major']
+                planets[planet]['generator'] = calculations.planets(steps, planets[planet]['semi_major'], planets[planet]['eccentricity'], planets[planet]['angular_offset'])
+        lim *= 1.5
 
-        for x, y in all_in_one.hohmann(nsteps, planets[self.origin.get(self.origin.curselection())][1], planets[self.origin.get(self.origin.curselection())][2],
-                                       planets[self.destination.get(self.destination.curselection())][1], planets[self.destination.get(self.destination.curselection())][2], self.second.get()):
-            hohmann.append((x, y))
+        # The routine immediately starts comparing the positions of space-craft and target planet to
+        # find out if we have reached the sphere of incfluence. 
+        movie = True
+        hohmann_transfer = calculations.hohmann(steps, planets[origin_planet], planets[target_planet], self.mode.get(), movie)
+        # initiate generator
+        hohmann_transfer.send(None)
+        hohmann_transfer.send((0, 0))  # fake target starting position
+        nth = int(steps/100)
+        for step in range(0, steps):
+
             # If planet is plotted:
-            # Calculate next coordinates and append to position array
-            for planet, properties in planets.items():
-                if properties[0]:
-                    properties[6].append(next(properties[7]))
+            #     Calculate next coordinates and append to position array
+            for planet in planets:
+                if planets[planet]['plotting'] or planet in [origin_planet, target_planet]:
+                    planets[planet]['position'].append(next(planets[planet]['generator']))
+            hohmann.append(hohmann_transfer.send(planets[target_planet]['position'][-1]))
+            hohmann.append(hohmann_transfer.send(planets[target_planet]['position'][-1]))
+
             i += 1
-            nth = int(nsteps/100)
-            if i % nth == 0 or i == nsteps-1:
+            if i % nth == 0 or i == steps-1:
                 fig = plt.Figure()
+                #clean weird None yields
+                hohmann = [h for h in hohmann if h != None]
+
                 for planet, properties in planets.items():
-                    if planets[planet][0]:
-                        plt.plot(*zip(*properties[6]), marker=None, color=properties[5], alpha=0.7)
-                        plt.plot(*zip(properties[6][-1]), marker='o', ms=8, color=properties[5])
+                    if planets[planet]['plotting']:
+                        plt.plot(*zip(*planets[planet]['position']), marker=None, color=planets[planet]['color'], alpha=0.7)
+                        plt.plot(*zip(planets[planet]['position'][-1]), marker='o', ms=8, color=planets[planet]['color'])
                 # Sun
                 plt.plot(0, 0, 'yo', ms=10)
                 # Transfer Orbit
                 plt.plot(*zip(*hohmann), linestyle='--', color='Maroon')
                 plt.plot(*zip(hohmann[-1]), ms=5, color='Maroon')
-
-                # Set plot limits to largest radius + x
-                lim = 0.4
-                mod = 1.4
-                for values in planets.values():
-                    if values[0] and values[1] > lim:
-                        lim = values[1] * mod
                 plt.grid()
-                plt.xlabel("x / AU")
-                plt.ylabel("y / AU")
-                plt.axis("equal")
+                plt.xlabel('x / AU')
+                plt.ylabel('y / AU')
+                plt.axis('equal')
                 plt.axis([-lim, lim, -lim, lim])
                 plt.savefig(save_path + str(i) + '.png')
                 fig.clear()
                 plt.cla()
                 plt.clf()
+        #clean weird None yields
+        hohmann = [h for h in hohmann if h != None]
 
         moviebar = "Shooting movie.. {bar}"
         images = []
         image_files = [save_path + f for f in os.listdir(save_path) if os.path.isfile(os.path.join(save_path, f)) and f[-4:] == '.png']
         image_files.sort()
-        for filename in minibar.bar(image_files, template=moviebar):
-            images.append(imageio.imread(filename))
-            imageio.mimsave(save_path + 'HohmannTransfer.gif', images)
+        # Skip creating gif for now. Takes to long and messes up image order
+        #for filename in minibar.bar(image_files, template=moviebar):
+        #    images.append(imageio.imread(filename))
+        #    imageio.mimsave(save_path + 'HohmannTransfer.gif', images)
         print('\nDone!')
 
 root = tk.Tk()
