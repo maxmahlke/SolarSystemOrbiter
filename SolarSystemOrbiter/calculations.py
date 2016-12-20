@@ -31,12 +31,10 @@ def step_velocity(current_velocity, current_position_parallel, current_position_
     return updated_velocity
 
 def hohmann(steps, origin, target, mode, movie):
+    # mode can be either HT with second impulse (orbit injection) or GAM or none
  
     print(u'\nLaunching Spacecraft..\n')
-    # mode can be either HT with second impulse (orbit injection) or GAM or none
 
-    #AU = 150e9
-    AU = 1.
     G = 6.67e-11                # gravitational constant
     M = 1.998e30                # mass of Sun
 
@@ -47,8 +45,8 @@ def hohmann(steps, origin, target, mode, movie):
     # d_d is distance of destination to sun in AU
     d_o = origin['semi_major'] * (1 - origin['eccentricity'])  # Leave at perihelion
     d_d = target['semi_major']  # Arrive at apohelion
-    d_init = d_o * AU
-    r_1 = d_d * AU
+    d_init = d_o
+    r_1 = d_d
 
     v = np.sqrt(G*M/d_init) + np.sqrt(G*M/d_init) * (np.sqrt(2*r_1 / (r_1 + d_init)) - 1)
 
@@ -57,7 +55,7 @@ def hohmann(steps, origin, target, mode, movie):
     v_x_0 = v*np.cos(a)
     v_y_0 = v*np.sin(a)
 
-    delta = 2 * 3.141597 * 1*AU /4 / np.sqrt(G*M/AU) / 3650 / 15     # Step size is 1 Earth day
+    delta = 2 * 3.141597 /4 / np.sqrt(G*M) / 3650 / 15     # Step size is 1 Earth day
 
     # Taylor approximation of velocities at n=1/2
     v_x_0 -= G*M*x_0/r(x_0, y_0)**3 * delta/2
@@ -83,8 +81,8 @@ def hohmann(steps, origin, target, mode, movie):
     # Integration
     #for step in range(0, steps):
     while True:
-        x.append(x_0 / AU)
-        y.append(y_0 / AU)
+        x.append(x_0)
+        y.append(y_0)
         x_1 = step_position(x_0, v_x_0, delta)
         y_1 = step_position(y_0, v_y_0, delta)
         v_x_1 = step_velocity(v_x_0, x_1, y_1, delta, M)
@@ -94,8 +92,6 @@ def hohmann(steps, origin, target, mode, movie):
         v_x_0 = v_x_1
         v_y_0 = v_y_1
         target_x, target_y = yield
-        target_x *= AU
-        target_y *= AU
 
         if mode != 0:  # If we perform GAM or Orbit injection
             # See if space-craft is close to target planet 
@@ -117,24 +113,22 @@ def hohmann(steps, origin, target, mode, movie):
                     if not second_impulse:
                         # If insertion has not been performed yet
                         print(u'\U0001f680 : Reached Sphere of Influence of Target Planet.\n    Performing Orbit Insertion Maneuver..')
-                        v_x_0 -= np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
-                        v_x_1 -= np.sqrt(G*M/d_d/AU) * (1 - np.sqrt(2*d_o*AU / (d_o*AU + d_d*AU)))
+                        v_x_0 -= np.sqrt(G*M/d_d) * (1 - np.sqrt(2*d_o / (d_o + d_d)))
+                        v_x_1 -= np.sqrt(G*M/d_d) * (1 - np.sqrt(2*d_o / (d_o + d_d)))
                         second_impulse = True
-        yield (x_0 / AU, y_0 / AU)
+        yield (x_0, y_0)
 
 
 def planets(steps, semi_major, eccentricity, angle):
 
-    #AU = 150e9
-    AU = 1
     G = 6.67e-11    			# gravitational constant
     M = 1.998e30					# mass of Sun
 
     # Use distance and anlge to calculate inital positions x_0, y_0 and velocities
     distance = semi_major * (1. - eccentricity)
-    d = distance * AU
+    d = distance
     theta = angle * np.pi / 180.
-    v = np.sqrt(G*M*(2./d - 1./(AU*semi_major)))
+    v = np.sqrt(G*M*(2./d - 1./semi_major))
 
     x_0 = d*np.sin(theta)
     y_0 = -d*np.cos(theta)
@@ -142,7 +136,7 @@ def planets(steps, semi_major, eccentricity, angle):
     v_x_0 = v*np.cos(theta)
     v_y_0 = v*np.sin(theta)
 
-    delta = 2 * 3.141597 * 1*AU /4 / np.sqrt(G*M/AU) / 3650 / 15     # Step size is 1 Earth day
+    delta = 2 * 3.141597 /4 / np.sqrt(G*M) / 3650 / 15     # Step size is 1 Earth day
     # Taylor approximation of velocities at n=1/2
     v_x_0 = v_x_0 - G*M*x_0/r(x_0, y_0)**3 * delta/2
     v_y_0 = v_y_0 - G*M*y_0/r(x_0, y_0)**3 * delta/2
@@ -152,8 +146,8 @@ def planets(steps, semi_major, eccentricity, angle):
 
     # Integration
     for step in range(0, steps):
-        x.append(x_0 / AU)
-        y.append(y_0 / AU)
+        x.append(x_0)
+        y.append(y_0)
         x_1 = step_position(x_0, v_x_0, delta)
         y_1 = step_position(y_0, v_y_0, delta)
         v_x_1 = step_velocity(v_x_0, x_1, y_1, delta, M)
@@ -163,7 +157,7 @@ def planets(steps, semi_major, eccentricity, angle):
         y_0 = y_1
         v_x_0 = v_x_1
         v_y_0 = v_y_1
-        yield x_0 / AU, y_0 / AU
+        yield x_0, y_0
 
 
 def GAM(position_spacecraft, position_planet, velocity_spacecraft, target, movie):
