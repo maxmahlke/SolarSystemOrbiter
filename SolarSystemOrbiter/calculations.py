@@ -1,5 +1,4 @@
 import numpy as np
-import minibar
 # In case we want to plot the GAM trajectory
 import matplotlib
 matplotlib.use("TkAgg")
@@ -55,7 +54,7 @@ def hohmann(steps, origin, target, mode, movie):
     v_x_0 = v*np.cos(a)
     v_y_0 = v*np.sin(a)
 
-    delta = 2 * 3.141597 /4 / np.sqrt(G*M) / 3650 / 15     # Step size is 1 Earth day
+    delta = 2 * 3.141597 / np.sqrt(G*M) / 365 / 15     # Step size is 1 Earth day
 
     # Taylor approximation of velocities at n=1/2
     v_x_0 -= G*M*x_0/r(x_0, y_0)**3 * delta/2
@@ -136,7 +135,7 @@ def planets(steps, semi_major, eccentricity, angle):
     v_x_0 = v*np.cos(theta)
     v_y_0 = v*np.sin(theta)
 
-    delta = 2 * 3.141597 /4 / np.sqrt(G*M) / 3650 / 15     # Step size is 1 Earth day
+    delta = 2 * 3.141597 / np.sqrt(G*M) / 365 / 15     # Step size is 1 Earth day
     # Taylor approximation of velocities at n=1/2
     v_x_0 = v_x_0 - G*M*x_0/r(x_0, y_0)**3 * delta/2
     v_y_0 = v_y_0 - G*M*y_0/r(x_0, y_0)**3 * delta/2
@@ -203,7 +202,7 @@ def GAM(position_spacecraft, position_planet, velocity_spacecraft, target, movie
 	sphere_of_influence  = soi(target['semi_major'], target['mass'])
 	# calculate trajectory inside SoI
 	if True:
-		for step in range(0, int(1e5)):
+		for step in range(0, int(1e7)):
 			x_gam.append(x_sc)
 			y_gam.append(y_sc)
 			x_sc_1 = step_position(x_sc, vx_sc, delta)

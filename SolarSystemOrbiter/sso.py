@@ -114,8 +114,8 @@ class App:
         self.uranus.set(True)
         self.origin.select_set(2)
         self.destination.select_set(5)
-        self.duration.set(800.)
-        self.offs.set(105.76)
+        self.duration.set(300.0)
+        self.offs.set(103.7)
 
     def solar_system_planets(self):
        # Planet: Plotting Boolean, semi-major axis in AU, eccentricity, orbital period, angle, color for plot, mass of planet, list of positions (calculated later)
@@ -188,7 +188,7 @@ class App:
         planets = self.solar_system_planets()
 
         # Integration steps. Number of steps is trade-off between accuracy and computational expense
-        steps = int(7 * 600 * self.duration.get())
+        steps = int(7 * 60 * self.duration.get())
 
         # Set offset angle of destination planet for HT timing
         # and eccentricity of origin and destinaiton to zero (HT assumes circular orbits)
