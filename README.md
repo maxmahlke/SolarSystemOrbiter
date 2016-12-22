@@ -45,15 +45,19 @@ Some status information is shown in the command line while you run the script!
 
 ### What it does
 The planet and transfer orbits are calculated using the [leap-frog integration scheme](https://en.wikipedia.org/wiki/Leapfrog_integration). Several assumptions are made: in-plane orbits of the planets and the rocket ship around the Sun, only the gravitational field of the Sun is regarded.
-The orbits of the planets reflect their actual distances and eccentricities. If a Hohmann Transfer Orbit is calculated, the script sets the eccentricity of destination and origin orbit to 0, as the varying speed of the planets on elliptical orbits messes up the trajectory calculation.
+The orbits of the planets reflect their actual distances and eccentricities. If a Hohmann Transfer Orbit is calculated, the script sets the eccentricity of destination and origin orbit to 0, as the varying speed of the planets on elliptical orbits messes up the trajectory calculation (will be implemented later).
 
 Here is the math behind the calculation of the HTM and an examplary calculation for a Earth-Mars transfer:
 ![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/SolarSystemOrbiter/htm/maths.png?raw=true)
 
+We disregard any perturbations due to third bodies, non-spherical inhomogenous planets, solar radiation, ...
 In the end, all we do is accelerate our rocket ship at the start and see how its trajectory is influenced by the Sun's gravity field.
 
 ### To-Do
 * Increase number of integration steps only for GAM calculation in SoI
 * Include Planet IX
+* Include *One-Tangent Burns*. Compare to HTs
+* Combine HTs with phasing orbits
+* Use eccentric anomaly to calculate HTs for elliptical orbits (fixed orientation between origin and target planet)
 * Add real planet's positions for acutal dates. Look for possible next date for HT / GAM between planets.
 * Long-term goal: Itineraries of Hohmann Transfers and GAMs. Comparison of energies and times required

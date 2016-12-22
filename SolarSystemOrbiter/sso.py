@@ -79,7 +79,7 @@ class App:
 
         tk.Radiobutton(self.transfer_frame, text='No Impulse', variable=self.mode, value=0).grid(row=6, column=2, sticky='EW')
         tk.Radiobutton(self.transfer_frame, text='Orbit Injection', variable=self.mode, value=1).grid(row=7, column=0, sticky='EW')
-        tk.Radiobutton(self.transfer_frame, text='GAM', variable=self.mode, value=2).grid(row=7, column=2, sticky='EW')
+        tk.Radiobutton(self.transfer_frame, text='GAM (arrival not guaranteed)', variable=self.mode, value=2).grid(row=7, column=2, sticky='EW')
 
         # Planet offset in degree
         self.offs = tk.DoubleVar()
@@ -188,7 +188,7 @@ class App:
         planets = self.solar_system_planets()
 
         # Integration steps. Number of steps is trade-off between accuracy and computational expense
-        steps = int(7 * 60 * self.duration.get())
+        steps = int(7 * 15 * self.duration.get())
 
         # Set offset angle of destination planet for HT timing
         # and eccentricity of origin and destinaiton to zero (HT assumes circular orbits)
@@ -272,7 +272,7 @@ class App:
         print('\nOrbit Transfer\t\t|\t Completed')
         print('Origin Planet\t\t|\t {:s}'.format(origin_planet))
         print('Target Planet\t\t|\t {:s}'.format(target_planet))
-        print('Transfer Time\t\t|\t {:.1f} Earth Years'.format(steps / 7 / 150 / 52))
+        print('Transfer Time\t\t|\t {:.1f} Earth Years'.format(int(self.duration.get())/52.))
         print('Closest Planet\t\t|\t To Be Implemented')
         # Calculate travelled distance
         travelled_distance = 0

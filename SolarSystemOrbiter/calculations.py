@@ -54,7 +54,7 @@ def hohmann(steps, origin, target, mode, movie):
     v_x_0 = v*np.cos(a)
     v_y_0 = v*np.sin(a)
 
-    delta = 2 * 3.141597 / np.sqrt(G*M) / 365 / 15     # Step size is 1 Earth day
+    delta = 2 * 3.141597 / np.sqrt(G*M) / 365 / 15     # Step size is 1/15 Earth day
 
     # Taylor approximation of velocities at n=1/2
     v_x_0 -= G*M*x_0/r(x_0, y_0)**3 * delta/2
