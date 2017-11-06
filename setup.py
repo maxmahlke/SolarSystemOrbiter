@@ -9,7 +9,7 @@ setup(
     name="SolarSystemOrbiter",
     url="https://github.com/madoee/SolarSystemOrbiter",
     author="Max Mahlke",
-    version="1.0",
+    version="2.0",
     packages=['SolarSystemOrbiter'],
     author_email='m_mahlke@yahoo.de',
     description="Plot orbits of planets and calculate Hohmann Tranfer Orbits",
@@ -17,7 +17,5 @@ setup(
     install_requires=[
         "matplotlib",
         "numpy",
-        "imageio",
-        "seaborn",
     ]
 )
