@@ -479,7 +479,6 @@ class App:
 
                 # Give distance to target planet
                 info['destinationDistance'].set_text('Distance to Destination: %.1fAU' % distancesToSpacecraft[Sim.destinationPlanet])
-
                 trajectories.append(info['destinationDistance'])
 
                 # See if spacecraft has arrived in sphere of influence of planet

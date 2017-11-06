@@ -1,7 +1,7 @@
 # SolarSystemOrbiter - 2.0
 Plot the orbits of the planets in our Solar System and calculate the [Hohmann Transfer Orbits](https://en.wikipedia.org/wiki/Hohmann_transfer_orbit) to transfer your rocket ship from one planet to the other and back.
 
-![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/SolarSystemOrbiter/htm/earth_mars.png?raw=true)
+![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/SolarSystemOrbiter/htm/progress.png?raw=true)
 
 ### How to install
 Download the .zip or clone the repository, and you're done!
@@ -29,8 +29,6 @@ For the transfer orbit to be plotted, you have to select the *Plot Hohmann Trans
 The *Timestep* and *Integration Time* textboxes set the simulation parameters. A finer (smaller) timestep will lead to more accurate results, while increasing the computation time. The *Suggest Simulation Parameters* button proposes values based on the planets included in the simulation and the parameters of the Hohmann Transfer orbit.
 
 The *Plot* button triggers the integration of the orbits of the planets and the transfer and opens a plot for you. The *Animate* button shows you the results of the simulation as they are calculated, with additional information superimposed. This animation can be saved to the local directory using the *Save as mp4* button. A file called *SolarSystemSimulation.mp4* is created.
-
-![alt-tag](https://github.com/madoee/SolarSystemOrbiter/blob/master/SolarSystemOrbiter/htm/progress.png?raw=true)
 
 
 ### What it does
