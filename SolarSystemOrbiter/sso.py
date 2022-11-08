@@ -2,7 +2,15 @@
 import matplotlib
 matplotlib.use('TkAgg')     # This backend is required for the app to run on macOS
 import matplotlib.animation as animation
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+
+#from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+try:
+    from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
+except ImportError:
+    from matplotlib.backends.backend_tkagg import NavigationToolbar2Tk as NavigationToolbar2TkAgg
+
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -335,7 +343,7 @@ class App:
         # ------
         # Create plotting canvas
         canvas = FigureCanvasTkAgg(fig, sim_window)
-        canvas.show()
+        canvas.draw()
         canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         # Add matplotlib toolbar to the plot
@@ -398,7 +406,7 @@ class App:
         # ------
         # Create plotting canvas
         canvas = FigureCanvasTkAgg(fig, sim_window)
-        canvas.show()
+        canvas.draw()
         canvas.get_tk_widget().pack(side=tk.BOTTOM, fill=tk.BOTH, expand=True)
 
         # Add interrupt button
